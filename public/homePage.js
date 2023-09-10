@@ -1,0 +1,136 @@
+const logoutButton = new LogoutButton();
+
+logoutButton.action = () => {
+    ApiConnector.logout((response) => {
+        if(response){
+            location.reload();
+        }
+    });
+}
+
+ApiConnector.current((response) => {
+    if(response.success){
+        ProfileWidget.showProfile(response.data);
+    }
+})
+
+const ratesBoard = new RatesBoard();
+
+const getExchangeRate = function(){
+    ApiConnector.getStocks((response) => {
+        if(response.success){
+            ratesBoard.clearTable();
+            ratesBoard.fillTable(response.data);
+        }
+    })
+}
+
+getExchangeRate()
+
+setInterval(getExchangeRate, 60000);
+
+const moneyManager = new MoneyManager();
+
+moneyManager.addMoneyCallback = (data) => {
+    ApiConnector.addMoney(data, (response) => {
+        if(response.success){
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, "Баланс кошелька успешно пополнен");
+        } else {
+            moneyManager.setMessage(response.success, "Ошибка пополнения баланса");
+        }
+    });
+}
+
+moneyManager.conversionMoneyCallback = (data) => {
+    ApiConnector.convertMoney(data, (response) => {
+        if(response.success){
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, "Конвертация успешно проведена");
+        } else {
+            moneyManager.setMessage(response.success, "Не удалось провести конвертацию");
+        }
+    });
+}
+
+moneyManager.sendMoneyCallback = (data) => {
+    ApiConnector.transferMoney(data, (response) => {
+        if(response.success){
+            ProfileWidget.showProfile(response.data);
+            moneyManager.setMessage(response.success, "Валюта успешно переведена");
+        } else {
+            moneyManager.setMessage(response.success, "Не удалось совершить перевод");
+        }
+    });
+}
+
+const favoritesWidget = new FavoritesWidget();
+
+ApiConnector.getFavorites((response) => {
+    if(response.success){
+        favoritesWidget.clearTable();
+        favoritesWidget.fillTable(response.data);
+        moneyManager.updateUsersList(response.data);
+    }
+})
+
+favoritesWidget.addUserCallback = (data) => {
+    ApiConnector.addUserToFavorites(data, (response) => {
+        if(response.success){
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
+            moneyManager.setMessage(response.success, "Пользователь успешно добавлен");
+        } else {
+            moneyManager.setMessage(response.success, "Не удалось добавить пользователя");
+        }
+    });
+}
+
+favoritesWidget.removeUserCallback = (data) => {
+    ApiConnector.removeUserFromFavorites(data, (response) => {
+        if(response.success){
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
+            moneyManager.setMessage(response.success, "Пользователь успешно удален");
+        } else {
+            moneyManager.setMessage(response.success, "Не удалось удалить пользователя");
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
